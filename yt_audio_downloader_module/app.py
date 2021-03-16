@@ -1,14 +1,14 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, QLabel, QVBoxLayout, QFileDialog, QGridLayout, QPushButton
+from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, QLabel, QVBoxLayout, QFileDialog, QGridLayout, QPushButton, QMessageBox
 from PyQt5.QtGui import QIcon, QCursor, QPixmap
 from PyQt5 import QtGui, QtCore
 import urllib.request
+import sys
 import re
 import pafy
 import os
 from pathlib import Path
 
-path_to_download_folder = str(os.path.join(Path.home(), "Downloads"))
+path_to_download_folder = str(os.path.join(Path.home(), "Downloads/YT_AUDIO_DOWNLOADS"))
 
 class YTDownloader():
     def __init__(self, download_folder=path_to_download_folder):
@@ -59,9 +59,20 @@ class App(QWidget):
     def handleClick(self):
         text = self.widgets['text_input'].text()
         if text:
+            msg = QMessageBox()
+            msg.setWindowTitle('Downloading')
+            msg.setText('Song(s) are downloading... Please hold on')
+            msg.setStandardButtons(0)
+            msg.exec_()
             song_list = []
             song_list.extend(text.split(','))
             self.YTDownloader.download_song_list(song_list)
+            msg.close()
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle('Error')
+            msg.setText('Please enter some input')
+            msg.exec_()
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -83,7 +94,7 @@ class App(QWidget):
     def layoutUI(self):
         #logo
         logo = QLabel()
-        logo.setPixmap(QPixmap("./yt_logo.png").scaled(128, 128))
+        logo.setPixmap(QPixmap("G:\Visual Studio\Projects\YT_Downloader\yt_audio_downloader_module\yt_logo.png").scaled(128, 128))
         logo.setAlignment(QtCore.Qt.AlignCenter)
         logo.setStyleSheet("margin-top: 12px;")
         #download-button
