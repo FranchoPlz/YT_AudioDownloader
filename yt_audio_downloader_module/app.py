@@ -2,7 +2,47 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QDesktopWidget, QLabel, QVBoxLayout, QFileDialog, QGridLayout, QPushButton
 from PyQt5.QtGui import QIcon, QCursor, QPixmap
 from PyQt5 import QtGui, QtCore
-from YTDownloader import YTDownloader
+import urllib.request
+import re
+import pafy
+import os
+from pathlib import Path
+
+path_to_download_folder = str(os.path.join(Path.home(), "Downloads"))
+
+class YTDownloader():
+    def __init__(self, download_folder=path_to_download_folder):
+        self.download_folder = download_folder
+        if not os.path.isdir(download_folder):
+            os.mkdir(download_folder)
+        self.ytq_url = 'https://www.youtube.com/results?search_query='
+        self.ytw_url = 'https://www.youtube.com/watch?v='
+
+    def get_video_info(self, query):
+        #prepare string to be used in query
+        query = query.replace(' ', '_')
+        #Query for the first vid in search engine
+        html = urllib.request.urlopen(self.ytq_url + query)
+        video_ids = re.findall(r'watch\?v=(\S{11})', html.read().decode())
+        vid_id = self.ytw_url + video_ids[0]
+        return vid_id
+
+    def download_best_audio(self, vid_id):
+        #select video
+        vid = pafy.new(vid_id)
+        print(vid.title)
+        #select best audio
+        bestaudio = vid.getbestaudio(preftype="mp3, wav", ftypestrict=False)
+        #download audio file
+        bestaudio.download(self.download_folder)
+
+    def download_song_list(self, song_list):
+        for query in song_list:
+            vid_id = self.get_video_info(query)
+            print(vid_id)
+            self.download_best_audio(vid_id)
+
+
 
 class App(QWidget):
 
@@ -18,9 +58,10 @@ class App(QWidget):
 
     def handleClick(self):
         text = self.widgets['text_input'].text()
-        song_list = []
-        song_list.extend(text.split(','))
-        self.YTDownloader.download_song_list(song_list)
+        if text:
+            song_list = []
+            song_list.extend(text.split(','))
+            self.YTDownloader.download_song_list(song_list)
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -42,7 +83,7 @@ class App(QWidget):
     def layoutUI(self):
         #logo
         logo = QLabel()
-        logo.setPixmap(QPixmap("yt_logo.png").scaled(128, 128))
+        logo.setPixmap(QPixmap("./yt_logo.png").scaled(128, 128))
         logo.setAlignment(QtCore.Qt.AlignCenter)
         logo.setStyleSheet("margin-top: 12px;")
         #download-button
@@ -74,6 +115,11 @@ class App(QWidget):
         self.grid.addWidget(text_input, 2, 0)
         self.grid.addWidget(button, 3, 0)
         self.setLayout(self.grid)
+
+def main():
+    app = QApplication(sys.argv)
+    ex = App()
+    sys.exit(app.exec_())
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)

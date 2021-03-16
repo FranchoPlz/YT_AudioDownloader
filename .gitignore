@@ -1,3 +1,11 @@
+
 .env
 .vscode
 downloads
+MANIFEST.in
+setup.py
+setup.cfg
+__pycache__
+YTDownloader
+YT_DOWNLOADER.egg-info
+build
