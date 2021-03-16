@@ -41,7 +41,7 @@ class YTDownloader():
         vid = pafy.new(vid_id)
         print(vid.title)
         #select best audio
-        bestvideo = vid.getbestvideo(preftype="mp4, mov, wmv, avi", ftypestrict=False)
+        bestvideo = vid.getbest(preftype="mp4, mov, wmv, avi", ftypestrict=False)
         #download video file
         bestvideo.download(self.download_folder)
 
