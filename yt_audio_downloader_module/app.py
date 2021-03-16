@@ -62,7 +62,6 @@ class App(QWidget):
             msg = QMessageBox()
             msg.setWindowTitle('Downloading')
             msg.setText('Song(s) are downloading... Please hold on')
-            msg.setStandardButtons(0)
             msg.exec_()
             song_list = []
             song_list.extend(text.split(','))
