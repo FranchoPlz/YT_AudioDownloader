@@ -1,0 +1,1 @@
+start cmd /k "yt_audio_downloader"
