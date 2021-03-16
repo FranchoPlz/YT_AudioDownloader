@@ -17,29 +17,3 @@ for search_query in song_list:
     bestaudio = vid.getbestaudio(preftype="mp3, wav", ftypestrict=False)
     #download audio file
     bestaudio.download(f'./downloads/')
-
-
-
-
-
-
-
-
-"""
-    #download vid info
-    video_info = youtube_dl.YoutubeDL().extract_info(url=vid_to_download, download=False)
-    video_title = video_info['title']
-    #download options
-    options = {
-        'format' : 'bestaudio/best',
-        'outtmpl' : f'./downloads/{video_title}.mp3',
-        'postprocessors' : [{
-            'key' : 'FFmpegExtractAudio',
-            'preferredcodec' : 'mp3',
-            'preferredquality' : '192'
-        }]
-    }
-    #download vid
-    with youtube_dl.YoutubeDL(options) as ydl:
-        ydl.download([vid_to_download])
-"""
