@@ -1,1 +1,1 @@
-start cmd /k "yt_audio_downloader"
+start cmd /k "yt_downloader"

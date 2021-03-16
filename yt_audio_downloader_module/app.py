@@ -36,12 +36,34 @@ class YTDownloader():
         #download audio file
         bestaudio.download(self.download_folder)
 
-    def download_song_list(self, song_list):
-        for query in song_list:
-            vid_id = self.get_video_info(query)
-            print(vid_id)
-            self.download_best_audio(vid_id)
+    def download_best_video(self, vid_id):
+        #select video
+        vid = pafy.new(vid_id)
+        print(vid.title)
+        #select best audio
+        bestvideo = vid.getbestvideo(preftype="mp4, mov, wmv, avi", ftypestrict=False)
+        #download video file
+        bestvideo.download(self.download_folder)
 
+    def download_song_list(self, song_list):
+        try:
+            for query in song_list:
+                vid_id = self.get_video_info(query)
+                print(vid_id)
+                self.download_best_audio(vid_id)
+                return 1
+        except Exception:
+            return 0
+
+    def download_video_list(self, video_list):
+        try:
+            for query in video_list:
+                vid_id = self.get_video_info(query)
+                print(vid_id)
+                self.download_best_video(vid_id)
+                return 1
+        except Exception:
+            return 0
 
 
 class App(QWidget):
@@ -56,17 +78,46 @@ class App(QWidget):
         self.YTDownloader = YTDownloader()
         self.initUI()
 
-    def handleClick(self):
+    def handleAudioBtn(self):
         text = self.widgets['text_input'].text()
         if text:
             msg = QMessageBox()
             msg.setWindowTitle('Downloading')
-            msg.setText('Song(s) are downloading... Please hold on')
-            msg.exec_()
+            msg.setText('Songs are beeing downloaded, please hold on!')
+            msg.show()
             song_list = []
             song_list.extend(text.split(','))
-            self.YTDownloader.download_song_list(song_list)
-            msg.close()
+            isDownloaded = self.YTDownloader.download_song_list(song_list)
+            if isDownloaded:
+                msg.setWindowTitle('Downloaded!')
+                msg.setText('Songs have been downloaded')
+            else:
+                msg.setWindowTitle('Error!')
+                msg.setText('There was an error with your download, please try again.\nWatch your grammar!')
+            msg.exec_()
+        else:
+            msg = QMessageBox()
+            msg.setWindowTitle('Error')
+            msg.setText('Please enter some input')
+            msg.exec_()
+
+    def handleVideoBtn(self):
+        text = self.widgets['text_input'].text()
+        if text:
+            msg = QMessageBox()
+            msg.setWindowTitle('Downloading')
+            msg.setText('Songs are beeing downloaded, please hold on!')
+            msg.show()
+            video_list = []
+            video_list.extend(text.split(','))
+            isDownloaded = self.YTDownloader.download_video_list(video_list)
+            if isDownloaded:
+                msg.setWindowTitle('Downloaded!')
+                msg.setText('Songs have been downloaded')
+            else:
+                msg.setWindowTitle('Error!')
+                msg.setText('There was an error with your download, please try again.\nWatch your grammar!')
+            msg.exec_()
         else:
             msg = QMessageBox()
             msg.setWindowTitle('Error')
@@ -93,17 +144,25 @@ class App(QWidget):
     def layoutUI(self):
         #logo
         logo = QLabel()
-        logo.setPixmap(QPixmap("G:\Visual Studio\Projects\YT_Downloader\yt_audio_downloader_module\yt_logo.png").scaled(128, 128))
+        logo.setPixmap(QPixmap("./yt_logo.png").scaled(128, 128))
         logo.setAlignment(QtCore.Qt.AlignCenter)
         logo.setStyleSheet("margin-top: 12px;")
-        #download-button
-        button = QPushButton("Download")
-        button.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-        button.setStyleSheet(
+        #download-audio-button
+        button_audio = QPushButton("Download\nAudio")
+        button_audio.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        button_audio.setStyleSheet(
             "*{border: 4px solid '#BC006C'; border-radius: 45px; font-size: 20px; color: 'white'; padding: 30px; margin: 100px 200px}"+
             "*:hover{background: '#BC006C';}"
         )
-        button.clicked.connect(self.handleClick)
+        button_audio.clicked.connect(self.handleAudioBtn)
+        #download-video-button
+        button_video = QPushButton("Download\nVideo")
+        button_video.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+        button_video.setStyleSheet(
+            "*{border: 4px solid '#BC006C'; border-radius: 45px; font-size: 20px; color: 'white'; padding: 30px; margin: 100px 200px}"+
+            "*:hover{background: '#BC006C';}"
+        )
+        button_video.clicked.connect(self.handleVideoBtn)
         #Text
         text = QLabel("Write the name of the songs you wish to download separated by commas")
         text.setAlignment(QtCore.Qt.AlignLeft)
@@ -118,12 +177,13 @@ class App(QWidget):
             "font-size: 20px; color: white; padding: 10px; margin-top: 20px; border: 1px solid '#BC006C'; border-radius: 40px;"
         )
         #store items
-        self.widgets.update([('logo', logo), ('button', button), ('text', text), ('text_input', text_input)])
+        self.widgets.update([('logo', logo), ('button_audio', button_audio), ('button_video', button_video), ('text', text), ('text_input', text_input)])
         #Init items
-        self.grid.addWidget(logo, 0, 0)
-        self.grid.addWidget(text, 1, 0)
-        self.grid.addWidget(text_input, 2, 0)
-        self.grid.addWidget(button, 3, 0)
+        self.grid.addWidget(logo, 0, 0, 1, 2)
+        self.grid.addWidget(text, 1, 0, 1, 2)
+        self.grid.addWidget(text_input, 2, 0, 1, 2)
+        self.grid.addWidget(button_audio, 3, 0)
+        self.grid.addWidget(button_video, 3, 1)
         self.setLayout(self.grid)
 
 def main():
